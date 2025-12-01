@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>DevSecOps Kernel Analyzer</title>
+    <style>
+        body { font-family: sans-serif; margin: 20px; }
+        pre { background-color: #f4f4f4; padding: 10px; border: 1px solid #ddd; overflow-x: auto; }
+        .ai-output { background-color: #e0f7fa; border-left: 5px solid #00bcd4; padding: 15px; }
+    </style>
+</head>
+<body>
+    <h1>DevSecOps Project</h1>
+    <h2>Kernel Module Manager & Security Hardener</h2>
+    <hr>
+
+    <h3>Deployment Status: {{ status }}</h3>
+
+    <div>
+        <h4>Simulated Kernel Configuration (`mock_kernel_module.conf`)</h4>
+        <pre>{{ config_content }}</pre>
+    </div>
+
+    <div class="ai-output">
+        <h4>AI-Powered Security Findings (Gemini Output Area)</h4>
+        <p>This is where Gemini's structured security analysis and recommendations will appear after the next step.</p>
+    </div>
+</body>
+</html>
+

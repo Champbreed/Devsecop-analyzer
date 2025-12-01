@@ -1,0 +1,11 @@
+# Bytecode
+__pycache__/
+*.pyc
+
+# Local Environment Secrets
+.env
+venv/
+
+# Deployment files
+logs/	
+
