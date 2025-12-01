@@ -23,7 +23,9 @@
 
     <div class="ai-output">
         <h4>AI-Powered Security Findings (Gemini Output Area)</h4>
-        <p>This is where Gemini's structured security analysis and recommendations will appear after the next step.</p>
+        
+        {{ findings_html | safe }}
+        
     </div>
 </body>
 </html>
