@@ -1,18 +1,17 @@
 import os
 import json
-from flask import Flask, render_template
+# Import 'request' to handle form submissions
+from flask import Flask, render_template, request
 from google import genai
 from google.genai import types
 
 app = Flask(__name__)
 
 # --- CONFIGURATION (Load API Key) ---
-# The Render CI/CD will automatically load this from the Environment Variables.
-# If running locally, you'd use os.environ.get('GEMINI_API_KEY')
 GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY')
 
 # --- Helper Functions ---
-def load_config(filename="mock_kernel_module.conf"):
+def load_default_config(filename="mock_kernel_module.conf"):
     try:
         with open(filename, 'r') as f:
             return f.read()
@@ -23,12 +22,13 @@ def analyze_security_with_gemini(config_text):
     if not GEMINI_API_KEY:
         return {"error": "GEMINI_API_KEY not configured. Cannot perform analysis."}
     
+    if not config_text or config_text.strip() == "":
+        return {"error": "No configuration provided for analysis."}
+    
     try:
-        # Initialize the client using the environment variable
         client = genai.Client(api_key=GEMINI_API_KEY)
         
         # Define the STRUCTURED OUTPUT we want (JSON Schema)
-        # This mirrors your DevSecOps portfolio strategy!
         schema = types.Schema(
             type=types.Type.ARRAY,
             items=types.Schema(
@@ -44,7 +44,6 @@ def analyze_security_with_gemini(config_text):
             )
         )
 
-        # Create the advanced prompt for the model
         prompt = (
             f"As an elite DevSecOps expert, audit the following Linux kernel configuration for security vulnerabilities and hardening needs. "
             f"Focus specifically on settings that reduce auditability or increase attack surface. "
@@ -52,7 +51,6 @@ def analyze_security_with_gemini(config_text):
             f"The configuration is: \n\n{config_text}"
         )
 
-        # Call the model with structured output
         response = client.models.generate_content(
             model='gemini-2.5-flash',
             contents=prompt,
@@ -62,17 +60,23 @@ def analyze_security_with_gemini(config_text):
             ),
         )
 
-        # The response.text is a JSON string conforming to the schema
         return json.loads(response.text)
 
     except Exception as e:
-        # This catches errors like invalid API key, rate limits, or bad JSON generation
         return {"error": f"Gemini API Error: {str(e)}"}
 
-# --- Flask Route ---
-@app.route('/')
+# --- Flask Route (Now handles both GET and POST) ---
+@app.route('/', methods=['GET', 'POST'])
 def index():
-    kernel_config_text = load_config()
+    if request.method == 'POST':
+        # User submitted a new config via the form
+        kernel_config_text = request.form.get('kernel_config', load_default_config())
+        status = "AI Analysis Running..."
+    else:
+        # Initial load (GET) - use the default config
+        kernel_config_text = load_default_config()
+        status = "AI Analysis Complete! (Default Config)"
+        
     
     # Analyze the config using Gemini
     security_findings = analyze_security_with_gemini(kernel_config_text)
@@ -83,7 +87,10 @@ def index():
     else:
         # Format the structured JSON output into HTML for display
         findings_html = format_findings_to_html(security_findings)
-        status = "AI Analysis Complete!"
+        
+        # Only set status to 'Complete' if analysis ran successfully (after POST or on GET)
+        if request.method == 'POST' or status != "Gemini Error - Check API Key & Logs":
+            status = "AI Analysis Complete!"
         
     return render_template('index.html', 
                            status=status,
@@ -97,7 +104,6 @@ def format_findings_to_html(findings):
         return "<p>No critical security issues found.</p>"
 
     for finding in findings:
-        # Simple color coding based on severity
         color = "red" if finding.get("severity", "").upper() == "CRITICAL" else "orange" if finding.get("severity", "").upper() == "HIGH" else "green"
         
         html += f"""
@@ -111,7 +117,6 @@ def format_findings_to_html(findings):
     return html
 
 if __name__ == '__main__':
-    # This runs the app locally if executed directly
     app.run(debug=True)
 
 
