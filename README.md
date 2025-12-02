@@ -7,6 +7,22 @@
 
 Live Demo: https://devsecop-analyzer.onrender.com
 
+​## The Problem & Solution
+
+-​The Problem
+
+​Traditional security tools (like SAST) excel at syntax and rule-based checks for application code, but they fundamentally lack the contextual reasoning required to evaluate the security implications of low-level infrastructure configuration files (e.g., Linux kernel .conf files). Auditing these files typically requires slow, manual human expertise, creating a bottleneck in the security pipeline.
+
+-The Solution
+
+​The KMSH (Kernel Module Security Hardener) transforms the security review process by:
+
+​Automating Expert Reasoning: Leveraging the Gemini API as a specialized reasoning engine to analyze configuration text and infer systemic security risks. Gemini's advanced reasoning allows it to identify subtle forms of risks that rule-based systems miss.
+
+​Enforcing Automation: Utilizing a strict JSON Schema to guarantee structured, machine-readable output from the AI, ensuring the analysis can be reliably parsed and integrated into downstream automation processes.
+
+​Shifting Security Left: Providing immediate, actionable feedback directly to the developer, significantly reducing the time to remediate vulnerabilities
+
 ​## 1. System Architecture & Methodology
 
 ​The KMSH is a single-service Python application built for reliability and speed in a production setting.
@@ -63,7 +79,7 @@ Findings are automatically categorized by severity (CRITICAL, HIGH, MEDIUM) for 
 Enables security teams to rapidly test arbitrary configuration snippets and obtain immediate, structured feedback, speeding up the security review lifecycle.
 
 
-​### \#\# 4. Quick Start & Local Setup
+​4. Quick Start & Local Setup
 
 #### Prerequisites
 * Python 3.10+
@@ -85,7 +101,7 @@ Enables security teams to rapidly test arbitrary configuration snippets and obta
     export GEMINI_API_KEY="YOUR_KEY_HERE"
     
 4.  *Run Production Server (Gunicorn):*
-    bash
-    gunicorn --bind 0.0.0.0:8000 app:app
+    
+    bash gunicorn --bind 0.0.0.0:8000 app:app
     
     Access the application at http://localhost:8000.
